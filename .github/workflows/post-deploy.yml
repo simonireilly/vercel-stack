@@ -1,0 +1,9 @@
+name: 'push-seed-outputs-to-vercel'
+
+on:
+  deployment_status:
+
+jobs:
+  deployment_status:
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state == 'success'
