@@ -8,7 +8,7 @@ before_deploy:
   - echo "Before deploy"
 
 after_deploy:
-  - echo "After deploy"
+  - printenv
 
 before_remove:
   - echo "Before deploy"
