@@ -8,7 +8,7 @@ before_deploy:
   - echo "Before deploy"
 
 after_deploy:
-  - node post_deploy.js
+  - node seed/post_deploy.js
 
 before_remove:
   - echo "Before deploy"
