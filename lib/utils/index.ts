@@ -1,5 +1,5 @@
+import { execSync } from 'child_process';
 import { OAuthSettings } from '@aws-cdk/aws-cognito';
-import { AuthCognitoProps } from '@serverless-stack/resources';
 
 export const callbackUrls = (
   vercelProjectName: string
@@ -27,6 +27,5 @@ export const callbackUrls = (
   };
 };
 
-const { execSync } = require('child_process');
 const getBranchName = (): string =>
   execSync('git rev-parse --abbrev-ref HEAD').toString();
