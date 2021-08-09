@@ -82,8 +82,34 @@ const writeSecret = (key, value, gitBranch) => {
   });
 };
 
+// Write secrets
+const sendSecrets = async (allowedEnvVars, keyValuePairs, gitBranch) => {
+  let promises = [];
+
+  for (const key of allowedEnvVars) {
+    console.info(`Look for outputs key ${key}`);
+    const outputKey = key.replace(/_/g, '');
+    console.info(`Look for outputs key ${outputKey}`);
+
+    const output = keyValuePairs.find(
+      (entry) => entry['OutputKey'] === outputKey
+    );
+    if (output) {
+      const value = output['OutputValue'];
+      promises.push(writeSecret(key, value, gitBranch));
+    }
+  }
+
+  try {
+    return Promise.all(promises);
+  } catch (e) {
+    console.error('Failed to send stack outputs to Vercel', e);
+  }
+};
+
 module.exports = {
   getBranchName,
+  sendSecrets,
   vercel: {
     writeSecret,
   },

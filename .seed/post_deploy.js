@@ -1,11 +1,14 @@
+console.info('Booting...');
 const { execSync } = require('child_process');
 const { getBranchName } = require('./utils');
-
-console.info('Booting...');
-
-console.info('Looking for stack outputs');
 const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
 let keyValuePairs;
+
+//
+// Get formatted outputs from Stack
+//
+console.info('Preparing to forward the following outputs', { allowedEnvVars });
+console.info('Looking for stack outputs');
 const stackOutputs = process.argv.slice(2);
 try {
   keyValuePairs = JSON.parse(stackOutputs.join(''));
@@ -14,6 +17,9 @@ try {
 }
 console.info('Outputs from described stack', { keyValuePairs });
 
+//
+// Get branch name
+//
 console.info('Getting branch name');
 const remoteBranchName = execSync(
   `git name-rev --name-only --exclude=tags/ ${String(
@@ -24,27 +30,13 @@ console.info(`Remote branch is '${remoteBranchName.toString()}'`);
 const gitBranch = getBranchName(remoteBranchName.toString());
 console.info(`Branch name is '${gitBranch}'`);
 
-// Write secrets
-const sendSecrets = async () => {
-  let promises = [];
-
-  for (const key in allowedEnvVars) {
-    const outputKey = key.replace(/_/g, '')
-    console.info(`Look for outputs key ${outputKey}`)
-
-    const value = keyValuePairs.find(
-      (entry) => entry['OutputKey'] ===
-    )['OutputValue'];
-    promises.push(writeSecret(key, value, gitBranch));
-  }
-
-  try {
-    Promise.all(promises);
-  } catch (e) {
-    console.error('Failed to send stack outputs to Vercel', e);
-  }
-};
-
+//
+// Send secrets
+//
 console.info('Sending secrets');
-sendSecrets();
+sendSecrets(allowedEnvVars, keyValuePairs, gitBranch);
 console.info('Completed sending');
+
+module.exports = {
+  sendSecrets,
+};
