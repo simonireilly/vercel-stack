@@ -7,6 +7,7 @@ import {
   UserPoolOperation,
 } from '@aws-cdk/aws-cognito';
 import { Policy, PolicyStatement } from '@aws-cdk/aws-iam';
+import { callbackUrls } from './utils';
 
 export class AuthStack extends sst.Stack {
   public readonly auth: sst.Auth;
@@ -36,10 +37,7 @@ export class AuthStack extends sst.Stack {
               authorizationCodeGrant: true,
             },
             scopes: [OAuthScope.OPENID, OAuthScope.EMAIL, OAuthScope.PROFILE],
-            callbackUrls: [
-              `${process.env.WEBSITE_URL}/api/auth/callback/cognito`,
-            ],
-            logoutUrls: [String(process.env.WEBSITE_URL)],
+            ...callbackUrls('vercel-stack'),
           },
         },
       },
