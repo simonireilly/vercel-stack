@@ -75,7 +75,7 @@ const setEnvVarInVercel = (key, value, gitBranch) => {
 try {
   for (const key in allowedEnvVars) {
     const value = keyValuePairs.find(
-      (entry) => entry['OutputKey'] === key.replaceAll('_', '')
+      (entry) => entry['OutputKey'] === key.replaceAll(/_/g, '')
     )['OutputValue'];
     setEnvVarInVercel(key, value, gitBranch);
   }
