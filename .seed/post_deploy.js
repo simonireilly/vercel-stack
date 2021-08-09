@@ -3,20 +3,20 @@
 // 1. Run describe stacks and get secrets
 // 2. Post each secret to vercel using secure token
 
-const { execSync } = require('child_process');
+const https = require('https');
+const { getBranchName } = require('./utils');
 
 const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
-const https = require('https');
 const stackOutputs = process.argv.slice(2);
-const branchName = execSync(
+const remoteBranchName = execSync(
   `git name-rev --name-only --exclude=tags/ ${String(
     process.env.SEED_BUILD_SERVICE_SHA
   )}`
 );
 
-console.info(branchName.toString());
+const gitBranch = getBranchName(remoteBranchName.toSting());
 
-console.debug('Raw stack outputs', {
+console.debug(`Assigning Stack outputs to branch '${gitBranch}'`, {
   stackOutputs,
 });
 
@@ -51,10 +51,10 @@ const bodyTemplate = (key, value, gitBranch) => ({
   gitBranch,
 });
 
-const setEnvVarInVercel = (key, value) => {
+const setEnvVarInVercel = (key, value, gitBranch) => {
   const requestOptions = {
     ...options,
-    ...bodyTemplate(key, value),
+    ...bodyTemplate(key, value, gitBranch),
   };
   const req = https.request(options, (res) => {
     console.log(`statusCode: ${res.statusCode}`);
@@ -77,7 +77,7 @@ try {
     const value = keyValuePairs.find(
       (entry) => entry['OutputKey'] === key.replaceAll('_', '')
     )['OutputValue'];
-    setEnvVarInVercel(key, value);
+    setEnvVarInVercel(key, value, gitBranch);
   }
 } catch (e) {
   console.error('Failed to send stack outputs to Vercel', e);
