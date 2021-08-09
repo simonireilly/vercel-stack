@@ -3,7 +3,7 @@
 // 1. Run describe stacks and get secrets
 // 2. Post each secret to vercel using secure token
 
-const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
+const allowedEnvVarMap = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'};
 const https = require('https');
 const stackOutputs = process.argv.slice(2);
 
@@ -65,7 +65,7 @@ const setEnvVarInVercel = (key, value) => {
 // For each env var, send to vercel
 try {
   for (const key in allowedEnvVars) {
-    const value = keyValuePairs.find((entry) => entry['OutputKey'] === key)[
+    const value = keyValuePairs.find((entry) => entry['OutputKey'] === key.replaceAll('_', ''))[
       'OutputValue'
     ];
     setEnvVarInVercel(key, value);
