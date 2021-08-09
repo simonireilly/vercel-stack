@@ -1,5 +1,4 @@
 import * as sst from '@serverless-stack/resources';
-import { StackProps } from '@serverless-stack/resources';
 import { AuthStack } from './AuthStack';
 
 export default function main(app: sst.App): void {
