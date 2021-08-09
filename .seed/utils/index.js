@@ -7,7 +7,7 @@ const https = require('https');
  * @param {string} remote
  */
 const getBranchName = (remoteBranchName, remote = 'remotes/origin/') => {
-  const regex = new RegExp(`^${remote}(?<branchName>.*)$`);
+  const regex = new RegExp(`^${remote}(?<branchName>.*)$`, 'gm');
   const {
     groups: { branchName },
   } = regex.exec(remoteBranchName);

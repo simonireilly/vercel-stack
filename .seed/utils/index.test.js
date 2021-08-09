@@ -4,7 +4,8 @@ const nock = require('nock');
 describe('utilities', () => {
   describe('getBranchName', () => {
     it('retrieves the end of the path string', () => {
-      const branchName = getBranchName('remotes/origin/feat/auth-2');
+      const branchName = getBranchName(`remotes/origin/feat/auth-2
+      `);
 
       expect(branchName).toEqual('feat/auth-2');
     });
