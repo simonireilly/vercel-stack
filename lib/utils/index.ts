@@ -37,12 +37,9 @@ const getBranchName = (
   remote = 'remotes/origin/'
 ): string => {
   const regex = new RegExp(`^${remote}(?<branchName>.*)$`, 'gm');
-  const {
-    //@ts-ignore
-    groups: { branchName },
-  } = regex.exec(remoteBranchName);
+  const match = regex.exec(remoteBranchName);
 
-  return branchName;
+  return match?.groups?.branchName || '';
 };
 
 const branchName = (): string => {
