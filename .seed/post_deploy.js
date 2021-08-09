@@ -8,7 +8,6 @@ let keyValuePairs;
 // Get formatted outputs from Stack
 //
 console.info('Preparing to forward the following outputs', { allowedEnvVars });
-console.info('Looking for stack outputs');
 const stackOutputs = process.argv.slice(2);
 try {
   keyValuePairs = JSON.parse(stackOutputs.join(''));
@@ -36,7 +35,3 @@ console.info(`Branch name is '${gitBranch}'`);
 console.info('Sending secrets');
 sendSecrets(allowedEnvVars, keyValuePairs, gitBranch);
 console.info('Completed sending');
-
-module.exports = {
-  sendSecrets,
-};
