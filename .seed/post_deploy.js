@@ -1,16 +1,19 @@
 const { execSync } = require('child_process');
 const https = require('https');
 const { getBranchName } = require('./utils');
-const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
 
 console.info('Booting...');
-console.info('Looking for stack outputs');
 
-const stackOutputs = process.argv.slice(2);
+console.info('Looking for stack outputs');
+const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
 let keyValuePairs;
-console.debug(`Assigning Stack outputs to branch '${gitBranch}'`, {
-  stackOutputs,
-});
+const stackOutputs = process.argv.slice(2);
+try {
+  keyValuePairs = JSON.parse(stackOutputs.join(''));
+} catch (e) {
+  console.error('Stack inputs were not valid JSON', e);
+}
+console.info('Outputs from described stack', { keyValuePairs });
 
 console.info('Getting branch name');
 const remoteBranchName = execSync(
@@ -20,16 +23,6 @@ const remoteBranchName = execSync(
 );
 const gitBranch = getBranchName(remoteBranchName.toSting());
 console.info(`Branch name is '${gitBranch}'`);
-
-try {
-  keyValuePairs = JSON.parse(stackOutputs.join(''));
-} catch (e) {
-  console.error('Stack inputs were not valid JSON', e);
-}
-
-console.debug('Outputs from described stack', {
-  keyValuePairs,
-});
 
 const options = {
   hostname: 'api.vercel.com',
