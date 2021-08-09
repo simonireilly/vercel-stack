@@ -91,10 +91,11 @@ export class AuthStack extends sst.Stack {
     });
 
     this.addOutputs({
-      IdentityPoolId: this.auth.cognitoCfnIdentityPool.ref,
-      UserPoolId: this.auth.cognitoUserPool?.userPoolId || '',
-      ClientId: this.auth.cognitoUserPoolClient?.userPoolClientId || '',
-      CognitoDomain: domain?.domainName || '',
+      COGNITO_IDENTITY_POOL_ID: this.auth.cognitoCfnIdentityPool.ref,
+      COGNITO_USER_POOL_ID: this.auth.cognitoUserPool?.userPoolId || '',
+      COGNITO_CLIENT_ID:
+        this.auth.cognitoUserPoolClient?.userPoolClientId || '',
+      COGNITO_DOMAIN: `${domain?.domainName}.auth.${this.region}.amazoncognito.com`,
     });
   }
 }

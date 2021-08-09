@@ -3,5 +3,5 @@
 # VERCEL_PROJECT_ID
 # VERCEL_TOKEN
 #
-after_deploy: >
-  node .seed/post_deploy.js $(aws cloudformation describe-stacks --stack-name $SEED_STAGE_NAME-vercel-stack-auth-stack --query 'Stacks[0].Outputs')
+after_deploy:
+  - node .seed/post_deploy.js $(aws cloudformation describe-stacks --stack-name $SEED_STAGE_NAME-vercel-stack-auth-stack --query 'Stacks[0].Outputs')
