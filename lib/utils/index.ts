@@ -1,4 +1,9 @@
-export const callbackUrls = (vercelProjectName: string) => {
+import { OAuthSettings } from '@aws-cdk/aws-cognito';
+import { AuthCognitoProps } from '@serverless-stack/resources';
+
+export const callbackUrls = (
+  vercelProjectName: string
+): Pick<OAuthSettings, 'callbackUrls' | 'logoutUrls'> => {
   if (process.env.IS_LOCAL) {
     return {
       callbackUrls: [`http://localhost:3000/api/auth/callback/cognito`],
