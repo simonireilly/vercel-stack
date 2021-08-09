@@ -37,7 +37,7 @@ export class AuthStack extends sst.Stack {
               authorizationCodeGrant: true,
             },
             scopes: [OAuthScope.OPENID, OAuthScope.EMAIL, OAuthScope.PROFILE],
-            ...callbackUrls(this.stackName),
+            ...callbackUrls('vercel-stack'),
           },
         },
       },
