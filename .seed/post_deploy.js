@@ -1,5 +1,4 @@
 const { execSync } = require('child_process');
-const https = require('https');
 const { getBranchName } = require('./utils');
 
 console.info('Booting...');
@@ -21,60 +20,27 @@ const remoteBranchName = execSync(
     process.env.SEED_BUILD_SERVICE_SHA
   )}`
 );
-const gitBranch = getBranchName(remoteBranchName.toSting());
+const gitBranch = getBranchName(remoteBranchName.toString());
 console.info(`Branch name is '${gitBranch}'`);
 
-const options = {
-  hostname: 'api.vercel.com',
-  port: 443,
-  path: `/v8/projects/${String(process.env.VERCEL_PROJECT_ID)}/env`,
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${String(process.env.VERCEL_TOKEN)}`,
-  },
-};
+// Write secrets
+const sendSecrets = async () => {
+  let promises = [];
 
-const bodyTemplate = (key, value, gitBranch) => ({
-  type: 'encrypted',
-  key,
-  value,
-  target: ['preview'],
-  gitBranch,
-});
-
-const setEnvVarInVercel = (key, value, gitBranch) => {
-  const requestOptions = {
-    ...options,
-    ...bodyTemplate(key, value, gitBranch),
-  };
-  const req = https.request(options, (res) => {
-    console.log(`statusCode: ${res.statusCode}`);
-
-    res.on('data', (d) => {
-      process.stdout.write(d);
-    });
-  });
-
-  req.on('error', (error) => {
-    console.error(error);
-  });
-
-  req.end();
-};
-
-// For each env var, send to vercel
-try {
   for (const key in allowedEnvVars) {
-    console.info(`Sending ${key} to vercel environment API`);
-
     const value = keyValuePairs.find(
       (entry) => entry['OutputKey'] === key.replaceAll(/_/g, '')
     )['OutputValue'];
-    setEnvVarInVercel(key, value, gitBranch);
+    promises.push(writeSecret(key, value, gitBranch));
   }
-} catch (e) {
-  console.error('Failed to send stack outputs to Vercel', e);
-}
 
+  try {
+    Promise.all(promises);
+  } catch (e) {
+    console.error('Failed to send stack outputs to Vercel', e);
+  }
+};
+
+console.info('Sending secrets');
+sendSecrets();
 console.info('Completed sending');
