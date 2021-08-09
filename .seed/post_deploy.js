@@ -45,6 +45,7 @@ const bodyTemplate = (key, value, gitBranch) => ({
 const setEnvVarInVercel = (key, value) => {
   const requestOptions = {
     ...options,
+    ...bodyTemplate(key, value),
   };
   const req = https.request(options, (res) => {
     console.log(`statusCode: ${res.statusCode}`);
