@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import { OAuthSettings } from '@aws-cdk/aws-cognito';
+import { getBranchName } from '../../.seed/utils/index';
 
 export const callbackUrls = (
   vercelProjectName: string
@@ -13,13 +14,13 @@ export const callbackUrls = (
 
   return {
     callbackUrls: [
-      `https://${vercelProjectName}-git-${getBranchName().replace(
+      `https://${vercelProjectName}-git-${branchName().replace(
         /\//g,
         '-'
       )}-simonireilly.vercel.app/api/auth/callback/cognito`,
     ],
     logoutUrls: [
-      `https://${vercelProjectName}-git-${getBranchName().replace(
+      `https://${vercelProjectName}-git-${branchName().replace(
         /\//g,
         '-'
       )}-simonireilly.vercel.app`,
@@ -27,5 +28,30 @@ export const callbackUrls = (
   };
 };
 
-const getBranchName = (): string =>
-  execSync('git rev-parse --abbrev-ref HEAD').toString();
+/**
+ * Given a remote branch, return the plain form of the branch name
+ * @param {string} remoteBranchName
+ * @param {string} remote
+ */
+const getBranchName = (
+  remoteBranchName: string,
+  remote = 'remotes/origin/'
+): string => {
+  const regex = new RegExp(`^${remote}(?<branchName>.*)$`, 'gm');
+  const {
+    //@ts-ignore
+    groups: { branchName },
+  } = regex.exec(remoteBranchName);
+
+  return branchName;
+};
+
+const branchName = (): string => {
+  const fullBranchName = execSync(
+    `git name-rev --name-only --exclude=tags/ ${String(
+      process.env.SEED_BUILD_SERVICE_SHA
+    )}`
+  );
+
+  return getBranchName(fullBranchName.toString());
+};
