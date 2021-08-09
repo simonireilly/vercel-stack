@@ -3,9 +3,18 @@
 // 1. Run describe stacks and get secrets
 // 2. Post each secret to vercel using secure token
 
+const { execSync } = require('child_process');
+
 const allowedEnvVarMap = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
 const https = require('https');
 const stackOutputs = process.argv.slice(2);
+const branchName = execSync(
+  `git name-rev --name-only --exclude=tags/ ${String(
+    process.env.SEED_BUILD_SERVICE_SHA
+  )}`
+);
+
+console.info(branchName);
 
 console.debug('Raw stack outputs', {
   stackOutputs,
