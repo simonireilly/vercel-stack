@@ -1,6 +1,5 @@
 import { execSync } from 'child_process';
 import { OAuthSettings } from '@aws-cdk/aws-cognito';
-import { getBranchName } from '../../.seed/utils/index';
 
 export const callbackUrls = (
   vercelProjectName: string
