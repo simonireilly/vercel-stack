@@ -1,6 +1,11 @@
 // Dependencies
 const https = require('https');
 
+/**
+ * Given a remote branch, return the plain form of the branch name
+ * @param {string} remoteBranchName
+ * @param {string} remote
+ */
 const getBranchName = (remoteBranchName, remote = 'remotes/origin/') => {
   const regex = new RegExp(`^${remote}(?<branchName>.*)$`);
   const {
@@ -24,17 +29,33 @@ const requestBody = (key, value, gitBranch) => ({
   gitBranch,
 });
 
-const requestOptions = () => ({
+/**
+ * Build the request options for vercel
+ *
+ * @param {string} projectId
+ * @param {string} authToken
+ */
+const requestOptions = (
+  projectId = process.env.VERCEL_PROJECT_ID,
+  authToken = process.env.VERCEL_TOKEN
+) => ({
   hostname: 'api.vercel.com',
   port: 443,
-  path: `/v8/projects/${String(process.env.VERCEL_PROJECT_ID)}/env`,
+  path: `/v8/projects/${String(projectId)}/env`,
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${String(process.env.VERCEL_TOKEN)}`,
+    Authorization: `Bearer ${String(authToken)}`,
   },
 });
 
+/**
+ * Send POST request to vercel
+ *
+ * @param {string} key
+ * @param {string} value
+ * @param {string} gitBranch
+ */
 const writeSecret = (key, value, gitBranch) => {
   return new Promise((resolve, reject) => {
     const req = https.request(requestOptions(), (res) => {

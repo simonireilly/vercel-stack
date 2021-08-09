@@ -20,6 +20,7 @@ const remoteBranchName = execSync(
     process.env.SEED_BUILD_SERVICE_SHA
   )}`
 );
+console.info(`Remote branch is '${remoteBranchName.toString()}'`);
 const gitBranch = getBranchName(remoteBranchName.toString());
 console.info(`Branch name is '${gitBranch}'`);
 
