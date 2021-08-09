@@ -12,7 +12,7 @@
 # typescript
 *.js
 *.d.ts
-!.seed/*.js
+!.seed/**/*.js
 
 # misc
 .DS_Store
