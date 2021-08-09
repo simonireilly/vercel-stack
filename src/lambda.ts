@@ -1,11 +1,58 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyHandlerV2 } from "aws-lambda";
+import * as AWS from 'aws-sdk';
+import {
+  PostConfirmationTriggerHandler,
+  PreTokenGenerationTriggerHandler,
+} from 'aws-lambda';
+import { v4 as uuidv4 } from 'uuid';
 
-export const handler: APIGatewayProxyHandlerV2 = async (
-  event: APIGatewayProxyEventV2
+const TENANT_KEY = 'custom:org';
+
+const provider = new AWS.CognitoIdentityServiceProvider({
+  apiVersion: '2016-04-18',
+});
+
+/**
+ * Set a UUID for all new sign ups which confirm.
+ *
+ * @param event
+ */
+export const postConfirmation: PostConfirmationTriggerHandler = async (
+  event,
+  context,
+  callback
 ) => {
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "text/plain" },
-    body: `Hello, World! Your request was received at ${event.requestContext.time}.`,
+  const tenant_identifier = uuidv4();
+
+  await provider
+    .adminUpdateUserAttributes({
+      UserAttributes: [
+        {
+          Name: TENANT_KEY,
+          Value: tenant_identifier,
+        },
+      ],
+      UserPoolId: event.userPoolId,
+      Username: event.userName,
+    })
+    .promise();
+
+  // Return to Amazon Cognito
+  callback(null, event);
+};
+
+export const preTokenGeneration: PreTokenGenerationTriggerHandler = async (
+  event,
+  context,
+  callback
+) => {
+  event.response = {
+    claimsOverrideDetails: {
+      claimsToAddOrOverride: {
+        org: event.request.userAttributes['custom:org'],
+      },
+    },
   };
+
+  // Return to Amazon Cognito
+  callback(null, event);
 };
