@@ -3,6 +3,8 @@
 // 1. Run describe stacks and get secrets
 // 2. Post each secret to vercel using secure token
 
+const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
+const https = require('https');
 const stackOutputs = process.argv.slice(2);
 
 console.debug('Raw stack outputs', {
@@ -21,7 +23,6 @@ console.debug('Passed arguments', {
   keyValuePairs,
 });
 
-const https = require('https');
 const options = {
   hostname: 'api.vercel.com',
   port: 443,
@@ -33,9 +34,18 @@ const options = {
   },
 };
 
-// For each env var, send to vercel
+const bodyTemplate = (key, value, gitBranch) => ({
+  type: 'encrypted',
+  key,
+  value,
+  target: ['preview'],
+  gitBranch,
+});
 
-try {
+const setEnvVarInVercel = (key, value) => {
+  const requestOptions = {
+    ...options,
+  };
   const req = https.request(options, (res) => {
     console.log(`statusCode: ${res.statusCode}`);
 
@@ -49,6 +59,16 @@ try {
   });
 
   req.end();
+};
+
+// For each env var, send to vercel
+try {
+  for (const key in allowedEnvVars) {
+    const value = keyValuePairs.find((entry) => entry['OutputKey'] === key)[
+      'OutputValue'
+    ];
+    setEnvVarInVercel(key, value);
+  }
 } catch (e) {
   console.error('Failed to send stack outputs to Vercel', e);
 }
