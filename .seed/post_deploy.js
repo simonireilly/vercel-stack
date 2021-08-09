@@ -30,7 +30,7 @@ const sendSecrets = async () => {
 
   for (const key in allowedEnvVars) {
     const value = keyValuePairs.find(
-      (entry) => entry['OutputKey'] === key.replaceAll(/_/g, '')
+      (entry) => entry['OutputKey'] === key.replace(/_/g, '')
     )['OutputValue'];
     promises.push(writeSecret(key, value, gitBranch));
   }
