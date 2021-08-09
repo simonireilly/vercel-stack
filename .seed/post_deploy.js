@@ -1,26 +1,25 @@
-// Send secrets to vercel preview environment
-//
-// 1. Run describe stacks and get secrets
-// 2. Post each secret to vercel using secure token
-
+const { execSync } = require('child_process');
 const https = require('https');
 const { getBranchName } = require('./utils');
-
 const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
+
+console.info('Booting...');
+console.info('Looking for stack outputs');
+
 const stackOutputs = process.argv.slice(2);
+let keyValuePairs;
+console.debug(`Assigning Stack outputs to branch '${gitBranch}'`, {
+  stackOutputs,
+});
+
+console.info('Getting branch name');
 const remoteBranchName = execSync(
   `git name-rev --name-only --exclude=tags/ ${String(
     process.env.SEED_BUILD_SERVICE_SHA
   )}`
 );
-
 const gitBranch = getBranchName(remoteBranchName.toSting());
-
-console.debug(`Assigning Stack outputs to branch '${gitBranch}'`, {
-  stackOutputs,
-});
-
-let keyValuePairs;
+console.info(`Branch name is '${gitBranch}'`);
 
 try {
   keyValuePairs = JSON.parse(stackOutputs.join(''));
@@ -28,7 +27,7 @@ try {
   console.error('Stack inputs were not valid JSON', e);
 }
 
-console.debug('Passed arguments', {
+console.debug('Outputs from described stack', {
   keyValuePairs,
 });
 
@@ -74,6 +73,8 @@ const setEnvVarInVercel = (key, value, gitBranch) => {
 // For each env var, send to vercel
 try {
   for (const key in allowedEnvVars) {
+    console.info(`Sending ${key} to vercel environment API`);
+
     const value = keyValuePairs.find(
       (entry) => entry['OutputKey'] === key.replaceAll(/_/g, '')
     )['OutputValue'];
@@ -82,3 +83,5 @@ try {
 } catch (e) {
   console.error('Failed to send stack outputs to Vercel', e);
 }
+
+console.info('Completed sending');
