@@ -5,7 +5,7 @@
 
 const { execSync } = require('child_process');
 
-const allowedEnvVarMap = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
+const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
 const https = require('https');
 const stackOutputs = process.argv.slice(2);
 const branchName = execSync(
@@ -14,7 +14,7 @@ const branchName = execSync(
   )}`
 );
 
-console.info(branchName);
+console.info(branchName.toString());
 
 console.debug('Raw stack outputs', {
   stackOutputs,
