@@ -82,7 +82,14 @@ const writeSecret = (key, value, gitBranch) => {
   });
 };
 
-// Write secrets
+/**
+ * Takes a collection of allowed environment variables, finds their values in the
+ * outputs and sends them to vercel
+ *
+ * @param {string[]} allowedEnvVars Strings of environment var names
+ * @param {{OutputKey: string, OutputValue: string}[]} keyValuePairs Outputs from the stack as an object
+ * @param {string} gitBranch
+ */
 const sendSecrets = async (allowedEnvVars, keyValuePairs, gitBranch) => {
   let promises = [];
 

@@ -1,6 +1,6 @@
 console.info('Booting...');
 const { execSync } = require('child_process');
-const { getBranchName } = require('./utils');
+const { getBranchName, sendSecrets } = require('./utils');
 const allowedEnvVars = ['COGNITO_CLIENT_ID', 'COGNITO_DOMAIN'];
 let keyValuePairs;
 
